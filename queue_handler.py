@@ -9,19 +9,23 @@ task_queue = queue.Queue()
 
 worker_thread = None
 
+from logging_config import setup_logging
+import logging
+setup_logging()
+
 def worker():
-    print("[Worker] Worker started and waiting for tasks...", flush=True)
+    logging.info("[Worker] Worker started and waiting for tasks...")
     while True:
-        print("[Worker] Waiting for task from queue...", flush=True)
+        logging.info("[Worker] Waiting for task from queue...")
         task = task_queue.get()
 
         if task is None:
-            print("[Worker] Shutdown signal received. Exiting worker...", flush=True)
+            logging.info("[Worker] Shutdown signal received. Exiting worker...")
             task_queue.task_done()
             break
 
         task_type, request = task
-        print(f"[Worker] Got task: {task_type} - {request}", flush=True)
+        logging.info(f"[Worker] Got task: {task_type} - {request}")
 
         try:
             if task_type == 'power':
@@ -33,17 +37,17 @@ def worker():
             else:
                 result = 'Invalid operation'
 
-            print("[DEBUG] Result calculated: ", result, flush=True)
+            logging.info(f"[DEBUG] Result calculated: {result}")
 
             try:
                 save_request(task_type, request.json(), str(result))
             except Exception as e:
-                print(f"[Worker] ERROR during save_request: {e}", flush=True)
+                logging.info(f"[Worker] ERROR during save_request: {e}")
 
-            print(f"[Worker] {task_type}({request.dict()}) = {result}", flush=True)
+            logging.info(f"[Worker] {task_type}({request.dict()}) = {result}")
 
         except Exception as e:
-            print(f"[Worker] Error while processing task: {e}", flush=True)
+            logging.info(f"[Worker] Error while processing task: {e}")
 
         task_queue.task_done()
 

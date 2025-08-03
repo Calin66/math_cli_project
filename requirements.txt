@@ -1,4 +1,6 @@
-
 click
 pydantic
-flake8
+fastapi
+uvicorn
+pytest
+python-jose[cryptography]
